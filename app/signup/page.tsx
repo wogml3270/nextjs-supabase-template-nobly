@@ -1,18 +1,20 @@
 'use client';
 
 import React from 'react';
-import { Input } from '@/components/Input';
-import { SubmitButton } from '../login/submit-button';
 import { useRouter } from 'next/navigation';
+
+import { SubmitButton } from '@/components/Button';
+import { Input } from '@/components/Input';
 
 const Signup = ({ searchParams }: { searchParams: { message: string } }) => {
   const router = useRouter();
-  const handleSubmit = async (e: any) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
 
-    const response = await fetch('/auth/signup', {
+    const response = await fetch('/api/auth/signup', {
       method: 'POST',
       body: formData,
     });
@@ -20,18 +22,15 @@ const Signup = ({ searchParams }: { searchParams: { message: string } }) => {
     const result = await response.json();
 
     if (result.error) {
-      // 에러 처리 (예: 알림 표시)
       console.error(result.error);
     } else {
-      // 리디렉션 또는 성공 메시지 표시
-      window.location.href =
-        '/login?message=회원가입에 성공했습니다! 이메일을 확인하여 계정을 활성화하세요.';
+      window.location.href = `/login?message=${result.success}`;
     }
   };
 
   return (
     <div className='flex-1 flex flex-col w-full px-8 sm:max-w-sm justify-center gap-2'>
-      <div
+      <button
         onClick={() => router.back()}
         className='absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm'
       >
@@ -50,7 +49,7 @@ const Signup = ({ searchParams }: { searchParams: { message: string } }) => {
           <polyline points='15 18 9 12 15 6' />
         </svg>{' '}
         Back
-      </div>
+      </button>
       <form
         className='flex-1 flex flex-col w-full justify-center gap-1 text-foreground'
         onSubmit={handleSubmit}
@@ -85,9 +84,9 @@ const Signup = ({ searchParams }: { searchParams: { message: string } }) => {
         />
         <Input
           type='text'
-          name='extension_number'
-          label='내선 번호'
-          placeholder='내선 번호 입력'
+          name='manager_role'
+          label='매니저 타입'
+          placeholder='매니저 타입'
         />
         <Input
           type='text'
@@ -97,13 +96,13 @@ const Signup = ({ searchParams }: { searchParams: { message: string } }) => {
         />
         <Input
           type='text'
-          name='manager_role'
-          label='매니저 타입'
-          placeholder='매니저 타입'
+          name='extension_number'
+          label='내선 번호'
+          placeholder='내선 번호 입력'
         />
         <Input type='file' name='business_card' label='명함' placeholder='명함 url' />
         <SubmitButton
-          formAction={handleSubmit}
+          formAction={() => handleSubmit}
           className='bg-green-700 rounded-md px-4 py-2 text-foreground my-2'
           pendingText='회원가입 중...'
         >

@@ -14,7 +14,7 @@ export const Input: React.FC<InputProps> = ({ label, ...props }) => {
       )}
       <input
         id={props.name}
-        className='text-black p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300'
+        className='bg-transparent p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300'
         {...props}
       />
     </div>

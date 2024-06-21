@@ -1,27 +1,32 @@
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/server';
-import { redirect } from 'next/navigation';
-import { SubmitButton } from './submit-button';
+import { useRouter } from 'next/navigation';
+
+import { SubmitButton } from '@/components/Button';
 import { Input } from '@/components/Input';
 
 const Login = ({ searchParams }: { searchParams: { message: string } }) => {
-  const signIn = async (formData: FormData) => {
-    'use server';
+  const router = useRouter();
 
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const supabase = createClient();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const response = await fetch('/api/auth/signin', {
+      method: 'POST',
+      body: formData,
     });
 
-    if (error) {
-      return redirect('/login?message=Could not authenticate user');
-    }
+    const result = await response.json();
 
-    return redirect('/admin');
+    if (result.error) {
+      window.location.href = `/login?message=${result.error}`;
+      console.error(result.error);
+    } else {
+      router.push('/');
+    }
   };
 
   return (
@@ -47,7 +52,10 @@ const Login = ({ searchParams }: { searchParams: { message: string } }) => {
         Back
       </Link>
 
-      <form className='flex-1 flex flex-col w-full justify-center gap-1 text-foreground'>
+      <form
+        className='flex-1 flex flex-col w-full justify-center gap-1 text-foreground'
+        onSubmit={handleSubmit}
+      >
         <Input
           type='email'
           name='email'
@@ -63,7 +71,7 @@ const Login = ({ searchParams }: { searchParams: { message: string } }) => {
           required
         />
         <SubmitButton
-          formAction={signIn}
+          formAction={() => handleSubmit}
           className='bg-green-700 rounded-md px-4 py-2 text-foreground my-2'
           pendingText='Signing In...'
         >

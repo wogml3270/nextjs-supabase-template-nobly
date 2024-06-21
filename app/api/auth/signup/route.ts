@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   const manager_role = formData.get('manager_role') as string;
   const business_card = formData.get('business_card') as string;
 
-  const { data, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -29,13 +29,19 @@ export async function POST(req: NextRequest) {
         phone,
         manager_role,
         business_card,
+        role: 'admin',
       },
     },
   });
 
   if (error) {
-    return NextResponse.json({ error: '사용자를 인증할 수 없습니다.' }, { status: 400 });
+    return NextResponse.json({ error: '회원가입에 실패했습니다.' }, { status: 400 });
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json(
+    {
+      success: '회원가입에 성공했습니다! 이메일을 확인하여 계정을 활성화하세요.',
+    },
+    { status: 303 },
+  );
 }
